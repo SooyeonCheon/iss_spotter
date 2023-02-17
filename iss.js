@@ -1,5 +1,3 @@
-// Fetch our IP Address
-// Fetch the geo coordinates (Latitude & Longitude) for our IP
 // Fetch the next ISS flyovers for our geo coordinates
 const request = require('request');
 
@@ -27,5 +25,25 @@ const fetchMyIP = function(callback) {
   });
 };
 
+const fetchCoordsByIP = function(ip, callback) {
+  request(`http://ipwho.is/${ip}`, (err, response, body) => {
 
-module.exports = { fetchMyIP };
+    if (err) return callback(err, null);
+
+    const parsedBody = JSON.parse(body);
+
+    if (!parsedBody.success) {
+      const msg = `Success status was ${parsedBody.success}. Server message says: ${parsedBody.message} when fetching for IP ${parsedBody.ip}`;
+      callback(Error(msg), null);
+      return;
+    }
+
+    // const data = {latitude: parsedBody.latitude, longitude: parsedBody.longitude};
+    // callback(null, data);
+
+    const { latitude, longitude } = parsedBody;
+    callback(null, {latitude, longitude});
+  });
+};
+
+module.exports = { fetchMyIP, fetchCoordsByIP };
